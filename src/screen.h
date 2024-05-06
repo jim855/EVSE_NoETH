@@ -7,6 +7,7 @@ class Screen {
         Screen(uint8_t cs, uint8_t rst, uint8_t sck, uint8_t miso, uint8_t mosi);
         bool begin(RA8875sizes s);
         void bootDrawFrame();
+        void bootDrawStartFrame();
         void bootDrawStatu(String status);
         void bootDrawError(String error);
         void bootDrawDone();

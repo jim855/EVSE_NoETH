@@ -217,6 +217,23 @@ void Screen::bootDrawFrame()
     _u8g2.setCursor(0, 40);
     _u8g2.print("EVSE智慧型充電樁");
 
+    btememorycopy(2,0,0,1,0,0,480,272);
+}
+
+void Screen::bootDrawStartFrame()
+{
+    // 開機中框架畫面
+    memorytolayer(2);
+    _tft.fillScreen(RA8875_BLACK);
+    _tft.fillRect(0, 0, 480, 48, RA8875_GREEN);
+    _u8g2.setFontMode(2);
+    _u8g2.setFontDirection(0);
+    _u8g2.setForegroundColor(RA8875_BLUE);
+    _u8g2.setBackgroundColor(RA8875_GREEN);
+    _u8g2.setFont(cht_font_32);
+    _u8g2.setCursor(0, 40);
+    _u8g2.print("EVSE智慧型充電樁");
+
     _u8g2.setForegroundColor(RA8875_WHITE);
     _u8g2.setBackgroundColor(RA8875_BLACK);
     _u8g2.setFont(cht_font_32);

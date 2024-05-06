@@ -14,6 +14,7 @@
 #include <Adafruit_MCP9808.h>
 #include <ZMPT101B.h>
 // 自己管的部分
+#include <Wiegand.h>
 #include <MFRC522_I2C.h>
 #include <buzzer.h>
 #include <screen.h>
@@ -30,12 +31,11 @@ Screen scr = Screen(LCD_CS, LCD_RST, LCD_SCK, LCD_MISO, LCD_MOSI);
 Adafruit_MCP9808 tempSensor;
 Setting setting;
 String eth_ip, eth_mac;
-MFRC522 mfrc522(0x28, 0x28);
-File RFID_DATA;
 Buzzer buzzer = Buzzer(BEEPER,PWMCHANNEL,RESOLUTION);
-ZMPT101B voltageSensor1(voltage_sensor,60);
 unsigned long lock_countdown=0;
 uint32_t next_status = 0;
+
+WIEGAND wg;
 
 double lastVolts=-1, lastAmps=-1, lastWalts=-1, maxAmps = -1;
 double lastSessionWatts = -1, lastTotalWatts = -1;
@@ -46,7 +46,7 @@ bool isCharging = false, lastIsCharging = false;
 bool isConnected = false, lastIsConnected = false;
 bool isConnectEMS = false;
 String lastAuthenCard = "";
-String evseVersion = "", evseProtocol="";
+String evseVersion = "", evseProtocol=""; 
 bool isLocked = true;
 bool isAuthByCard = false;
 WebServer server(80);
@@ -76,7 +76,7 @@ void setup()
   rapiSender.sendCmd("$S4 1");
   rapiSender.sendCmd("$SV 220000");
 
-  scr.bootDrawFrame();
+  scr.bootDrawStartFrame();
   scr.bootDrawStatu("設定腳位");
   //vTaskDelay(1000);
   pinMode(LED1,OUTPUT);
@@ -111,7 +111,7 @@ void setup()
   
   scr.bootDrawStatu("設定RFID");
   //vTaskDelay(1000);
-  mfrc522.PCD_Init();
+  wg.begin(19,20);
 
   scr.bootDrawStatu("設定溫度傳感器");
   //vTaskDelay(1000);
@@ -326,7 +326,7 @@ void loop()
     isAuthByCard = false;
     scr.normalDrawDeviceStatus(isAuthByCard);
     lastAuthenCard = "";
-    //rapiSender.sendCmd("$S4 0");
+    rapiSender.sendCmd("$S4 1");
   } else if (lastIsConnected == false && isConnected == true) {
     log_e("Plug From DISCONNECT to CONNECTED");
   } else {
@@ -335,12 +335,12 @@ void loop()
   lastIsConnected = isConnected;
 
 
-  if ( !mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial() || !isConnected) {
+  if ( !wg.available() || !isConnected) {
     delay(50);
     return;
   }
 
-  String card_uuid = mfrc522.GetCardIdString();
+  String card_uuid = String(wg.getCode(),HEX);
   log_e("Card ID: %s", card_uuid);
   bool checked = false;
   for (int x=0; x<10; x++) {
