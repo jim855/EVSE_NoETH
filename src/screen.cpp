@@ -217,23 +217,6 @@ void Screen::bootDrawFrame()
     _u8g2.setCursor(0, 40);
     _u8g2.print("EVSE智慧型充電樁");
 
-    btememorycopy(2,0,0,1,0,0,480,272);
-}
-
-void Screen::bootDrawStartFrame()
-{
-    // 開機中框架畫面
-    memorytolayer(2);
-    _tft.fillScreen(RA8875_BLACK);
-    _tft.fillRect(0, 0, 480, 48, RA8875_GREEN);
-    _u8g2.setFontMode(2);
-    _u8g2.setFontDirection(0);
-    _u8g2.setForegroundColor(RA8875_BLUE);
-    _u8g2.setBackgroundColor(RA8875_GREEN);
-    _u8g2.setFont(cht_font_32);
-    _u8g2.setCursor(0, 40);
-    _u8g2.print("EVSE智慧型充電樁");
-
     _u8g2.setForegroundColor(RA8875_WHITE);
     _u8g2.setBackgroundColor(RA8875_BLACK);
     _u8g2.setFont(cht_font_32);
@@ -245,7 +228,7 @@ void Screen::bootDrawStartFrame()
 void Screen::bootDrawStatu(String status)
 {
     memorytolayer(2);
-    _tft.fillRect(100, 120, 480, 160, RA8875_BLACK);
+    _tft.fillRect(100, 130, 480, 160, RA8875_BLACK);
     _u8g2.setForegroundColor(RA8875_WHITE);
     _u8g2.setBackgroundColor(RA8875_BLACK);
     _u8g2.setCursor(100, 160);
@@ -257,12 +240,23 @@ void Screen::bootDrawStatu(String status)
 void Screen::bootDrawError(String error)
 {
     memorytolayer(2);
+    // 開機中框架畫面
+    _tft.fillScreen(RA8875_BLACK);
+    _tft.fillRect(0, 0, 480, 48, RA8875_GREEN);
+    _u8g2.setFontMode(2);
+    _u8g2.setFontDirection(0);
+    _u8g2.setForegroundColor(RA8875_BLUE);
+    _u8g2.setBackgroundColor(RA8875_GREEN);
+    _u8g2.setFont(cht_font_32);
+    _u8g2.setCursor(0, 40);
+    _u8g2.print("EVSE智慧型充電樁");
+
     _tft.fillRect(100, 120, 480, 160, RA8875_BLACK);
     _u8g2.setForegroundColor(RA8875_RED);
     _u8g2.setBackgroundColor(RA8875_BLACK);
     _u8g2.setCursor(100, 160);
     _u8g2.setFont(cht_font_24);
-    _u8g2.print("開機失敗 => " + error);
+    _u8g2.print("偵測到錯誤 => " + error);
     _u8g2.setCursor(100, 200);
     _u8g2.setFont(cht_font_24);
     _u8g2.print("請嘗試重新開機，或聯繫管理員");
@@ -287,8 +281,8 @@ void Screen::normalDrawFrame(String mac, String ip, String position)
 {
     memorytolayer(2);
     // Color Block
-    _tft.fillRect(0, 48, 240, 240, RA8875_CYAN);
-    _tft.fillRect(240, 48, 240, 240, RA8875_BLACK);
+    _tft.fillRect(0, 48, 240, 192, RA8875_WHITE);
+    _tft.fillRect(240, 48, 240, 192, RA8875_BLACK);
     _tft.fillRect(0, 240, 480, 32, RA8875_GREEN);
     // IP & Mac
     _u8g2.setForegroundColor(RA8875_BLUE);
@@ -370,7 +364,7 @@ void Screen::normalDrawPlugStatus(String status)
 {
     memorytolayer(2);
     // Position
-    _tft.fillRect(0, 240, 240, 272, RA8875_GREEN);
+    _tft.fillRect(0, 240, 240, 32, RA8875_GREEN);
     _u8g2.setForegroundColor(RA8875_BLACK);
     _u8g2.setBackgroundColor(RA8875_GREEN);
     _u8g2.setFont(cht_font_16);
@@ -402,52 +396,51 @@ void Screen::normalDrawDateTime()
     btememorycopy(2,0,0,1,0,0,480,272);
 }
 
-void Screen::normalDrawDeviceStatus(bool unlocked) {
+void Screen::normalDrawDeviceStatus(bool isAuth) {
     memorytolayer(2);
-    if (unlocked) {
-         _tft.fillRect(0, 48, 240, 64, RA8875_CYAN);
+    if (isAuth) {
+        _tft.fillRect(0, 48, 240, 112, RA8875_WHITE);
         _u8g2.setForegroundColor(RA8875_BLUE);
-        _u8g2.setBackgroundColor(RA8875_CYAN);
+        _u8g2.setBackgroundColor(RA8875_WHITE);
         _u8g2.setFont(cht_font_32);
         _u8g2.setCursor(10, 92);
         _u8g2.print("設備開放中");
-        _tft.fillRect(0, 96, 240, 48, RA8875_CYAN);
-    } 
-    else 
-    {
-         _tft.fillRect(0, 48, 240, 64, RA8875_CYAN);
-        _u8g2.setForegroundColor(RA8875_RED);
-        _u8g2.setBackgroundColor(RA8875_CYAN);
-        _u8g2.setFont(cht_font_32);
-        _u8g2.setCursor(10, 92);
-        _u8g2.print("設備鎖定中");
-        _tft.fillRect(0, 96, 240, 48, RA8875_CYAN);
-        _u8g2.setForegroundColor(RA8875_BLACK);
-        _u8g2.setBackgroundColor(RA8875_CYAN);
-        _u8g2.setFont(cht_font_24);
-        _u8g2.setCursor(10, 132);
-        _u8g2.print("請刷卡解鎖");
+        // _tft.fillRect(0, 96, 240, 48, RA8875_WHITE);
         // _u8g2.setForegroundColor(RA8875_BLACK);
-        // _u8g2.setBackgroundColor(RA8875_CYAN);
+        // _u8g2.setBackgroundColor(RA8875_WHITE);
         // _u8g2.setFont(cht_font_24);
         // _u8g2.setCursor(10, 132);
         // _u8g2.print("鎖定倒數: " + String(count) + " 秒");
+    } 
+    else 
+    {
+        _tft.fillRect(0, 48, 240, 64, RA8875_WHITE);
+        _u8g2.setForegroundColor(RA8875_RED);
+        _u8g2.setBackgroundColor(RA8875_WHITE);
+        _u8g2.setFont(cht_font_32);
+        _u8g2.setCursor(10, 92);
+        _u8g2.print("設備鎖定中");
+        _tft.fillRect(0, 96, 240, 48, RA8875_WHITE);
+        _u8g2.setForegroundColor(RA8875_BLACK);
+        _u8g2.setBackgroundColor(RA8875_WHITE);
+        _u8g2.setFont(cht_font_24);
+        _u8g2.setCursor(10, 132);
+        _u8g2.print("請刷卡解鎖");
     }
-    
     btememorycopy(2,0,0,1,0,0,480,272);
 }
 
 void Screen::normalDrawDeviceWait() {
     memorytolayer(2);
-    _tft.fillRect(0, 48, 240, 64, RA8875_CYAN);
+    _tft.fillRect(0, 48, 240, 64, RA8875_WHITE);
     _u8g2.setForegroundColor(RA8875_RED);
-    _u8g2.setBackgroundColor(RA8875_CYAN);
+    _u8g2.setBackgroundColor(RA8875_WHITE);
     _u8g2.setFont(cht_font_32);
     _u8g2.setCursor(10, 92);
     _u8g2.print("電樁暫時無法使用");
-    _tft.fillRect(0, 96, 240, 48, RA8875_CYAN);
+    _tft.fillRect(0, 96, 240, 48, RA8875_WHITE);
     _u8g2.setForegroundColor(RA8875_BLACK);
-    _u8g2.setBackgroundColor(RA8875_CYAN);
+    _u8g2.setBackgroundColor(RA8875_WHITE);
     _u8g2.setFont(cht_font_24);
     _u8g2.setCursor(10, 132);
     _u8g2.print("等待更新紀錄");
@@ -462,3 +455,54 @@ void Screen::normalDrawDeviceMessage(String message, bool isError) {
 }
 
 
+void Screen::normalDrawMenu(uint16_t key){
+    memorytolayer(2);
+    switch (key)
+    {
+    case 0:
+        _tft.fillRect(0, 48 , 480, 192, RA8875_BLACK);
+        _u8g2.setForegroundColor(RA8875_WHITE);
+        _u8g2.setBackgroundColor(RA8875_BLACK);
+        _u8g2.setCursor(0, 74);
+        _u8g2.setFont(cht_font_24);
+        _u8g2.print("1.直接充電\n2.時間電價充電\n3.排程充電\n4.XXXXXX\n5.OOOOOOO");
+        break;
+
+    case 0x0001:
+        _tft.fillRect(0, 48 , 240, 24, RA8875_WHITE);
+        _u8g2.setForegroundColor(RA8875_BLACK);
+        _u8g2.setBackgroundColor(RA8875_WHITE);
+        _u8g2.setCursor(0, 74);
+        _u8g2.setFont(cht_font_24);
+        _u8g2.print("1.直接充電");
+        break;
+    
+    case 0x0002:
+        _tft.fillRect(0, 72 , 240, 24, RA8875_WHITE);
+        _u8g2.setForegroundColor(RA8875_BLACK);
+        _u8g2.setBackgroundColor(RA8875_WHITE);
+        _u8g2.setCursor(0, 74);
+        _u8g2.setFont(cht_font_24);
+        _u8g2.print("\n2.時間電價充電");
+        break;
+
+    case 0x0004:
+        _tft.fillRect(0, 96 , 240, 24, RA8875_WHITE);
+        _u8g2.setForegroundColor(RA8875_BLACK);
+        _u8g2.setBackgroundColor(RA8875_WHITE);
+        _u8g2.setCursor(0, 74);
+        _u8g2.setFont(cht_font_24);
+        _u8g2.print("\n\n3.排程充電");
+        break;
+
+    case 0xFFFF:
+        _tft.fillRect(0, 48 , 480, 192, RA8875_BLACK);
+        _tft.fillRect(0, 48 , 240, 192, RA8875_WHITE);
+    
+    default:
+        break;
+    }
+    
+
+    btememorycopy(2,0,0,1,0,0,480,272);
+}

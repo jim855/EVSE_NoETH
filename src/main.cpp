@@ -49,6 +49,7 @@ String lastAuthenCard = "";
 String evseVersion = "", evseProtocol=""; 
 bool isLocked = true;
 bool isAuthByCard = false;
+bool isemergency = false;
 WebServer server(80);
 
 LocalRecords locRec;
@@ -56,12 +57,9 @@ ChargeRecord lastRecord;
 unsigned long lastConnectTime=0;
 
 void IRAM_ATTR EM() {
-  /*
-  rapiSender.sendCmd("$FD");
-  log_e("SHUT DOWN EVSE!!!!");
-  vTaskDelay(5000);
-  ESP.restart();
-  */
+  
+  isemergency = true;
+  
 }
 
 void setup()
@@ -76,7 +74,7 @@ void setup()
   rapiSender.sendCmd("$S4 1");
   rapiSender.sendCmd("$SV 220000");
 
-  scr.bootDrawStartFrame();
+  scr.bootDrawFrame();
   scr.bootDrawStatu("設定腳位");
   //vTaskDelay(1000);
   pinMode(LED1,OUTPUT);
@@ -123,9 +121,16 @@ void setup()
   
   scr.bootDrawStatu("起始緊急開關綁定");
   //vTaskDelay(1000);
-  pinMode(BUTTON_1, INPUT_PULLDOWN);
-  attachInterrupt(digitalPinToInterrupt(BUTTON_1), EM, RISING);
-  
+  pinMode(BUTTON_1, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(BUTTON_1), EM, FALLING);
+  if(digitalRead(BUTTON_1)==LOW)
+  {
+    scr.bootDrawError("緊急開關未復位");
+    while(true)
+    {
+      delay(100);
+    }
+  }
   scr.bootDrawDone();
   //vTaskDelay(2000);
   // Normal mode
@@ -137,6 +142,20 @@ void setup()
 
 void loop()
 {
+
+  if(isemergency==true){
+    rapiSender.sendCmd("$FD");
+    log_e("SHUT DOWN EVSE!!!!");
+    scr.bootDrawError("緊急狀況 裝置鎖定");
+    while(true)
+    {
+      delay(10);
+    }
+    delay(5000);
+    ESP.restart();
+  }
+  
+
   rapiSender.loop();
 
   if(millis() > next_status)
@@ -216,7 +235,6 @@ void loop()
           if (failed) {
             log_e("發生錯誤");
             rapiSender.sendCmd("$FD");
-            scr.bootDrawFrame();
             scr.bootDrawError(state_msg);
             while (true)
               delay(10);
@@ -229,15 +247,15 @@ void loop()
       });
       OpenEVSE.getChargeCurrentAndVoltage([](int ret, double amps, double volts) {
         if (RAPI_RESPONSE_OK == ret) {
-          double voltage = volts;
-          if (lastVolts != voltage) {
-            scr.normalDrawConcurrentVoltage(voltage);
+          
+          if (lastVolts != volts) {
+            scr.normalDrawConcurrentVoltage(volts);
           } 
 
           if (lastAmps != amps) {
             scr.normalDrawConcurrentAmp(amps);
           }
-          lastVolts = voltage;
+          lastVolts = volts;
           lastAmps = amps;
         }
       });

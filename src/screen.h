@@ -7,7 +7,6 @@ class Screen {
         Screen(uint8_t cs, uint8_t rst, uint8_t sck, uint8_t miso, uint8_t mosi);
         bool begin(RA8875sizes s);
         void bootDrawFrame();
-        void bootDrawStartFrame();
         void bootDrawStatu(String status);
         void bootDrawError(String error);
         void bootDrawDone();
@@ -23,9 +22,11 @@ class Screen {
         void normalDrawDateTime(String date, String time);
         
         void normalDrawDateTime();
-        void normalDrawDeviceStatus(bool locked);
+        void normalDrawDeviceStatus(bool isAuth);
         void normalDrawDeviceWait();
         void normalDrawDeviceMessage(String message, bool isError);
+
+        void normalDrawMenu(uint16_t key);
         
     private:
         Adafruit_RA8875 _tft;
